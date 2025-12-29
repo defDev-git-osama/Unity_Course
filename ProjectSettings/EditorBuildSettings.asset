@@ -11,6 +11,15 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Day1.unity
     guid: 909f3c297286d604f83a73a09fa30651
+  - enabled: 1
+    path: Assets/Scenes/Day2Side.unity
+    guid: 5cb9189c3901e654c9553f65daf294d7
+  - enabled: 1
+    path: Assets/Scenes/Day2Fractal.unity
+    guid: d59ddd20649a3cb4dabf517df88763dd
+  - enabled: 1
+    path: Assets/Scenes/Day2TopDown.unity
+    guid: e647381116da18041a26d8772b70da49
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0
