@@ -8,37 +8,64 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float maxSpeed;
     [SerializeField] private float jumpForce;
 
-
-
+    [SerializeField] private Animator anim;
 
     private Rigidbody2D rb;
 
-    //COORTINES
+
+
+
+  
+
    
     void  Start()
     {
-        rb = GetComponent<Rigidbody2D>();
+      rb = GetComponent<Rigidbody2D>();
     }
     
     
     
     void Update()
     {
-        rb.AddForce(GetMoveInput() * speed,ForceMode2D.Force);
-
-        if(rb.linearVelocity.magnitude > maxSpeed)
+      transform.position += new Vector3(GetMoveInput(), 0, 0) * speed * Time.deltaTime;
+        if (GetMoveInput() > 0)
         {
-            rb.linearVelocity = rb.linearVelocity.normalized * maxSpeed;
+            transform.localScale = new Vector3(1, 1, 1);
         }
-        if(Input.GetKey(KeyCode.Space))
+        else if (GetMoveInput() < 0)
+        {
+            transform.localScale = new Vector3(-1, 1, 1);
+        }
+
+        if(GetMoveInput() != 0)
+        {
+            anim.SetBool("Run", true);
+        }
+
+        if(GetMoveInput() == 0)
+        {
+            anim.SetBool("Run", false);
+        }
+    
+   
+
+
+
+        if(Input.GetMouseButtonDown(0))
+        {
+            anim.SetTrigger("Attack");
+        }
+        if (Input.GetKeyDown(KeyCode.Space))
         {
             rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+          anim.SetTrigger("Jump");
         }
+
     }
 
 
-    private Vector2 GetMoveInput()
+    private float GetMoveInput()
     {
-        return new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
+        return Input.GetAxis("Horizontal");
     }
 }
