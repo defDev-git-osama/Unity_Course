@@ -23,7 +23,7 @@ public class LevelManager : MonoBehaviour
     void FixedUpdate()
     {
         cameraa.transform.position = Vector3.Lerp(cameraa.transform.position,
-        new Vector3(player.transform.position.x, cameraa.transform.position.y, cameraa.transform.position.z) + camOffset , 0.1f);
+        new Vector3(player.transform.position.x, player.transform.position.y, cameraa.transform.position.z) + camOffset , 0.2f);
     }
 
 }

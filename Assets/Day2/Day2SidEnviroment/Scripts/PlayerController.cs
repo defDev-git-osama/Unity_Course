@@ -4,68 +4,79 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField] private float speed;
-    [SerializeField] private float maxSpeed;
-    [SerializeField] private float jumpForce;
+    [Header("Movement")]
+    [SerializeField] private float speed = 5f;
+    [SerializeField] private float maxSpeed = 10f;   // (not used yet)
+    [SerializeField] private float jumpForce = 7f;
 
+    [Header("Animation")]
     [SerializeField] private Animator anim;
 
+    [Header("Ground Check")]
+    [SerializeField] private Vector3 offsetToGroundCheck = new Vector3(0f, -0.5f, 0f);
+    [SerializeField] private float groundCheckRadius = 0.2f;
+    [SerializeField] private LayerMask whatIsGround;
+
+
+    
     private Rigidbody2D rb;
+    private float moveDir;
+    public bool IsDead;
+    private static readonly int RunHash = Animator.StringToHash("Run");
+    private static readonly int JumpHash = Animator.StringToHash("Jump");
+    private static readonly int GroundedHash = Animator.StringToHash("Grounded");
+    private static readonly int FallingHash = Animator.StringToHash("Falling");
+    
 
-
-
-
-  
-
-   
-    void  Start()
+    private void Awake()
     {
-      rb = GetComponent<Rigidbody2D>();
+        rb = GetComponent<Rigidbody2D>();
     }
-    
-    
-    
-    void Update()
+
+    private void Update()
     {
-      transform.position += new Vector3(GetMoveInput(), 0, 0) * speed * Time.deltaTime;
-        if (GetMoveInput() > 0)
-        {
-            transform.localScale = new Vector3(1, 1, 1);
-        }
-        else if (GetMoveInput() < 0)
-        {
-            transform.localScale = new Vector3(-1, 1, 1);
-        }
+        if (IsDead) return;
+        ApplyMovement();
+        UpdateAnimation();
 
-        if(GetMoveInput() != 0)
-        {
-            anim.SetBool("Run", true);
-        }
-
-        if(GetMoveInput() == 0)
-        {
-            anim.SetBool("Run", false);
-        }
-    
-   
-
-
-
-        if(Input.GetMouseButtonDown(0))
-        {
-            anim.SetTrigger("Attack");
-        }
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.W) && IsGrounded())
         {
             rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
-          anim.SetTrigger("Jump");
+            anim.SetTrigger(JumpHash);
         }
-
     }
-
-
-    private float GetMoveInput()
+    private void ApplyMovement()
     {
-        return Input.GetAxis("Horizontal");
+        moveDir = Input.GetAxis("Horizontal");
+        rb.linearVelocity = new Vector2(moveDir * speed, rb.linearVelocity.y);
+        
+        if (moveDir > 0f) transform.localScale = new Vector3(1f, 1f, 1f);
+        else if (moveDir < 0f) transform.localScale = new Vector3(-1f, 1f, 1f);
+
+
     }
+
+
+    private void UpdateAnimation()
+    {
+        anim.SetBool(GroundedHash, IsGrounded());
+        anim.SetBool(FallingHash, rb.linearVelocity.y < 0f);
+        anim.SetBool(RunHash, moveDir != 0f);
+    }
+    private bool IsGrounded()
+    {
+        Vector2 checkPos = (Vector2)transform.position + (Vector2)offsetToGroundCheck;
+        return Physics2D.OverlapCircle(checkPos, groundCheckRadius, whatIsGround);
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+        Vector3 pos = transform.position + offsetToGroundCheck;
+        Gizmos.DrawWireSphere(pos, groundCheckRadius);
+
+
+        Gizmos.DrawRay(transform.position ,new Vector2(moveDir,0 ));
+    }
+
 }
