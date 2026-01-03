@@ -7,61 +7,61 @@ using UnityEngine;
 public enum MovementDirection { Up, Down, Right, Left };
 public class PlayerMovementTopDown : MonoBehaviour
 {
-   [SerializeField] private float speed = 5f;
-   [SerializeField] private Animator animator;
+        [SerializeField] private float speed = 5f;
+    [SerializeField] private Animator animator;
 
-   [SerializeField] private MovementDirection dir;
+    public MovementDirection dir;
 
-   
+    private Rigidbody2D rb;
+    private Vector2 moveInput;
+
+    void Awake()
+    {
+        rb = GetComponent<Rigidbody2D>();
+
+      
+        if (animator == null) animator = GetComponentInChildren<Animator>();
+    }
+
     void Update()
     {
-
-        if (Input.GetMouseButtonDown(0))
-        {
-            animator.SetTrigger("Attack");
-        }
         
+        moveInput = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
 
-        if(GetMoveInput() != Vector3.zero)
-        {
-            animator.SetBool("Moving", true);
-        }
-        else
-        {
-            animator.SetBool("Moving", false);
-        }
+        bool moving = moveInput.sqrMagnitude > 0.001f;
+        animator.SetBool("Moving", moving);
 
-        if(Input.GetKey("w"))
+        if (moving)
         {
-            transform.position += Vector3.up * speed * Time.deltaTime;
-            dir = MovementDirection.Up;
-        }
-        if (Input.GetKey("s"))
-        {
-            transform.position += Vector3.down * speed * Time.deltaTime;
-            dir = MovementDirection.Down;
-        }
-        if (Input.GetKey("d"))
-        {
-            transform.position += Vector3.right * speed * Time.deltaTime;
-            dir = MovementDirection.Right  ;
-            transform.localScale = new Vector3(1, 1, 1);
             
+            if (Mathf.Abs(moveInput.x) > Mathf.Abs(moveInput.y))
+            {
+                if (moveInput.x > 0)
+                {
+                    dir = MovementDirection.Right;
+                    transform.localScale = new Vector3(1, 1, 1);
+                }
+                else
+                {
+                    dir = MovementDirection.Left;
+                    transform.localScale = new Vector3(-1, 1, 1);
+                }
+            }
+            else
+            {
+                dir = (moveInput.y > 0) ? MovementDirection.Up : MovementDirection.Down;
+            }
         }
-        if (Input.GetKey("a"))
-        {
-            transform.position += Vector3.left * speed * Time.deltaTime;
-            dir = MovementDirection.Left;
-            transform.localScale = new Vector3(-1, 1, 1);
-        }
-      
+
         animator.SetInteger("Direction", (int)dir);
     }
 
-
-
-    private Vector3 GetMoveInput()
+    void FixedUpdate()
     {
-        return new Vector3(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"),0);
+        
+        Vector2 v = moveInput.normalized * speed;
+        rb.linearVelocity = v;
+
+        
     }
 }

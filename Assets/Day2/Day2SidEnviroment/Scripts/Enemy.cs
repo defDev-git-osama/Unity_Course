@@ -8,22 +8,26 @@ public class Enemy : MonoBehaviour, IDamagable
     [Header("Health")]
     [SerializeField] private int maxHealth = 100;
     [SerializeField] private int currentHealth;
+
     [Header("Movement")]
+    
+    [SerializeField] private float animTime = 0.6f;
     [SerializeField] private float patrolSpeed = 2f;
-    [SerializeField] private float chaseSpeed = 3.5f;
 
     [Header("Detection")]
-    [SerializeField] private float detectionRadius = 4f;
-    [SerializeField] private LayerMask playerMask;
+    [SerializeField] private float rayRange = 1f;
+    [SerializeField] private LayerMask groundMask;
 
-    [Header("Checks ")]
-    [SerializeField] private Transform groundCheck;     
+    [SerializeField] private Animator animator;
+
+  
    
 
   
-
+    private PlayerHealth playerHealth;
     private Rigidbody2D rb;
-  
+    private Vector2 velocity = Vector2.right;
+    private bool canMove = true;
 
     private void Awake()
     {
@@ -34,11 +38,27 @@ public class Enemy : MonoBehaviour, IDamagable
 
     private void Update()
     {
-        Collider2D p = Physics2D.OverlapCircle(transform.position, detectionRadius, playerMask);
-        if (p != null)
+        animator.SetBool("CanMove", canMove);
+        if (!canMove)  return;
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, velocity, rayRange, groundMask);
+        if (hit.collider != null)
         {
-      
+            velocity =  -1 *velocity ;
         }
+
+
+        rb.linearVelocity = velocity * patrolSpeed;
+        
+        if (velocity.x < 0)
+        {
+            transform.localScale = new Vector3(-2f, 2f, 2f);
+            
+        }
+        else
+        {
+            transform.localScale = new Vector3(2f, 2f, 2f);
+        }
+        
     }
 
 
@@ -48,13 +68,42 @@ public class Enemy : MonoBehaviour, IDamagable
     {
         if (collision.GetComponent<PlayerHealth>() != null)
         {
-            collision.GetComponent<PlayerHealth>().TakeDamage(12);
+            Debug.Log("Player detected!");
+            playerHealth = collision.GetComponent<PlayerHealth>();
+            StartCoroutine(Wait(animTime));
+            animator.SetTrigger("Attack");
         }
     }
 
+    void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.GetComponent<PlayerHealth>() != null)
+        {
+            playerHealth = null;
+        }
+    }
+
+
+    private IEnumerator Wait( float time)
+    {
+        canMove = false;
+        yield return new WaitForSeconds(time);
+        canMove = true;
+    }
+
+    public void GiveDamage()
+    {
+        if (playerHealth == null) return;
+        playerHealth.TakeDamage(30);
+    }
+
+
     public void TakeDamage(int damage)
     {
+        animator.SetTrigger("GetHit");
+        StartCoroutine(Wait(animTime));
         currentHealth -= damage;
+        Debug.Log("Enemy took " + damage + " damage and current health is " + currentHealth);
         if (currentHealth <= 0)
         {
             Debug.Log("Enemy died!");

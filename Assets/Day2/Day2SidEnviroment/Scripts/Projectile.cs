@@ -8,10 +8,10 @@ public class Projectile : MonoBehaviour
     {
         if(collision.GetComponent<IDamagable>() != null)
         {
-            collision.GetComponent<IDamagable>().TakeDamage(12);
+            collision.GetComponent<IDamagable>().TakeDamage(34);
             Destroy(gameObject);
         } 
-        if(collision.tag == "Wall")
+        if(collision.gameObject.layer == LayerMask.NameToLayer("Ground"))
         {
             
             Destroy(gameObject);

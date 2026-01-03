@@ -21,12 +21,12 @@ public class PlayerAttack1 : MonoBehaviour
            Rigidbody2D projectileInstance =  Instantiate(projectile, attackPoint.position, transform.rotation);
            if(transform.localScale.x < 0f)
            {
-               projectileInstance.transform.localScale = new Vector3(-1f, 1f, 1f);
+               projectileInstance.transform.localScale = new Vector3(-projectileInstance.transform.localScale.x, projectileInstance.transform.localScale.y, projectileInstance.transform.localScale.z);
                dir = Vector2.left;
            }
            else
            {
-               projectileInstance.transform.localScale = new Vector3(1f, 1f, 1f);
+               projectileInstance.transform.localScale = new Vector3(projectileInstance.transform.localScale.x, projectileInstance.transform.localScale.y, projectileInstance.transform.localScale.z);
                dir = Vector2.right;
            }
 

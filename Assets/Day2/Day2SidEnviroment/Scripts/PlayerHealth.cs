@@ -17,6 +17,7 @@ public class PlayerHealth : MonoBehaviour
     public void TakeDamage(int damage)
     {
         currentHealth -= damage;
+        Debug.Log($" Player took{damage}Damage and current health is {currentHealth} " );
         if (currentHealth <= 0)
         {
             playerController.IsDead = true;
